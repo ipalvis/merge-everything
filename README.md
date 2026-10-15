@@ -15,17 +15,6 @@ npm run dev        # local dev server with hot reload, usually http://localhost:
 
 Open `http://localhost:5173/?test=1` for **test mode**: only Colorado and Utah are dealt, and connecting them wins the round. Use it to check the win popup and Endless mode quickly. Test mode keeps its own best score.
 
-## Scripts
-
-| Command                     | What it does                                                                                                          |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `npm run dev`               | Dev server with hot reload                                                                                            |
-| `npm run build`             | Production build to `dist/` (what Cloudflare Pages serves)                                                            |
-| `npm run build:single-test` | Same single file with test mode always on (Colorado and Utah only), for the test artifact                             |
-| `npm run build:single`      | One self-contained `dist-single/index.html` with everything inlined, for claude.ai artifacts or sharing a single file |
-| `npm run preview`           | Serve the `dist/` build locally to check it before deploying                                                          |
-| `npm run build:map`         | Regenerate `src/data/states.json` from Census boundary data                                                           |
-| `npm run format`            | Format the code with Prettier                                                                                         |
 
 ## Project structure
 
