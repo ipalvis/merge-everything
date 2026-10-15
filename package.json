@@ -1,0 +1,33 @@
+{
+  "name": "merge-everything",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Drop U.S. states into a box; neighbors stick together. Assemble the Lower 48.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:single": "vite build --mode single",
+    "build:single-test": "vite build --mode single-test",
+    "preview": "vite preview",
+    "build:map": "node scripts/build-map.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@fontsource/public-sans": "5.3.0",
+    "matter-js": "0.19.0"
+  },
+  "devDependencies": {
+    "poly-decomp": "0.3.0",
+    "prettier": "3.9.9",
+    "simplify-js": "1.2.4",
+    "topojson-client": "3.1.0",
+    "us-atlas": "3.0.1",
+    "vite": "8.3.1",
+    "vite-plugin-singlefile": "2.3.3"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

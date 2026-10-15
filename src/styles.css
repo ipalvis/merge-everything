@@ -1,0 +1,674 @@
+/* Public Sans, self-hosted (Latin subset only) */
+@import '@fontsource/public-sans/latin-400.css';
+@import '@fontsource/public-sans/latin-600.css';
+@import '@fontsource/public-sans/latin-800.css';
+@import '@fontsource/public-sans/latin-900.css';
+
+:root {
+  --page: #f6efe0;
+  --ink: #3a2e22;
+  --muted: #7a6a55;
+  --ocean: #eadfc6;
+  --ocean-line: #dfd1b3;
+  --frame: #5b4a38;
+  --box: #eadfc6;
+  --box-line: #dfd1b3;
+  --box-danger: #b8432f;
+  --box-guide: #7a6a55;
+  --stroke: #4a3b2c;
+  --danger: #b8432f;
+  --gold: #d9a62e;
+  --button: #5b4a38;
+  --button-ink: #f6efe0;
+  --c0: #9dbbd6;
+  --c1: #a9c38e;
+  --c2: #bda8d3;
+  --c3: #d8b98c;
+  --c4: #e8a57a;
+  --c5: #b8b2a7;
+  --c6: #e3aecb;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+:root[data-theme='dark'] {
+  --page: #0e1a21;
+  --ink: #e5eef2;
+  --muted: #93a6b0;
+  --ocean: #15303b;
+  --ocean-line: #1c3c49;
+  --frame: #5f7887;
+  --box: #15303b;
+  --box-line: #1c3c49;
+  --box-danger: #f07a63;
+  --box-guide: #93a6b0;
+  --stroke: #0e1a21;
+  --danger: #f07a63;
+  --gold: #f2c553;
+  --button: #d7e6ec;
+  --button-ink: #0e1a21;
+  --c0: #5f95cc;
+  --c1: #6fa85e;
+  --c2: #957cbd;
+  --c3: #b08a5d;
+  --c4: #cc7149;
+  --c5: #868b90;
+  --c6: #c77fb2;
+  color-scheme: dark;
+}
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family:
+    'Public Sans',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  display: flex;
+  justify-content: center;
+  overscroll-behavior: none;
+}
+main {
+  width: 100%;
+  max-width: 672px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 14px 12px;
+  gap: 8px;
+}
+header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+h1 {
+  margin: 0;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 6vw, 2.3rem);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+}
+.next {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: right;
+}
+.next small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+/* The "Next up" label shrinks and truncates instead of pushing the header past the screen edge */
+.next,
+.next > div {
+  min-width: 0;
+}
+.next strong {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 800;
+  max-width: 9.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#nextCanvas {
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
+  background: var(--ocean);
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.stat small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+.stat b {
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.progress {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ocean);
+  overflow: hidden;
+}
+.progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--gold);
+  transition: width 0.3s;
+}
+.stage {
+  position: relative;
+  flex: none;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+#game {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  touch-action: none;
+  cursor: crosshair;
+}
+.stage.shake #game {
+  animation: shake var(--shake-dur, 0.9s) ease-out;
+}
+@keyframes shake {
+  8% {
+    transform: translateX(-8px) rotate(-0.7deg);
+  }
+  18% {
+    transform: translateX(7px) rotate(0.6deg);
+  }
+  30% {
+    transform: translateX(-7px) rotate(-0.5deg);
+  }
+  42% {
+    transform: translateX(6px) rotate(0.4deg);
+  }
+  55% {
+    transform: translateX(-5px) rotate(-0.3deg);
+  }
+  68% {
+    transform: translateX(4px) rotate(0.2deg);
+  }
+  80% {
+    transform: translateX(-2px);
+  }
+  90% {
+    transform: translateX(1px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stage.shake #game {
+    animation: none;
+  }
+}
+.controls {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px;
+  align-items: center;
+}
+@media (max-width: 520px) {
+  .controls {
+    gap: 8px;
+  }
+  .controls button {
+    font-size: 0.85rem;
+    padding: 0.8em 0.5em;
+  }
+}
+/* Narrow phones (about 380px and below): smaller title, "Next up" name and control labels so nothing runs off the edge */
+@media (max-width: 380px) {
+  h1 {
+    font-size: 1.35rem;
+  }
+  .next strong {
+    max-width: 6.5em;
+    font-size: 0.85rem;
+  }
+  .controls button {
+    font-size: 0.76rem;
+    padding: 0.8em 0.35em;
+  }
+}
+.stack {
+  display: grid;
+  justify-items: center;
+}
+.stack > span {
+  grid-area: 1/1;
+}
+.stack > span + span,
+.stack.armed > span {
+  visibility: hidden;
+}
+.stack.armed > span + span {
+  visibility: visible;
+}
+.boxwrap {
+  position: relative;
+  line-height: 0;
+}
+.iconbtn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--frame);
+  transition:
+    background 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
+}
+.iconbtn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.iconbtn:hover {
+  background: var(--danger);
+  color: var(--page);
+  box-shadow: inset 0 0 0 2px var(--danger);
+}
+.iconbtn.beside {
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 0;
+  width: 46px;
+  height: 46px;
+}
+.iconbtn.beside svg {
+  width: 21px;
+  height: 21px;
+}
+.bank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 6px 8px;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px var(--frame);
+}
+.bank canvas {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--ocean);
+}
+.bank.empty {
+  box-shadow: none;
+  outline: 2px dashed var(--muted);
+  outline-offset: -2px;
+}
+.bank.empty:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.bank.full {
+  box-shadow: inset 0 0 0 3px var(--gold);
+}
+.bank {
+  position: relative;
+}
+/* Pulses while tapping it does something: a gentle breathe plus a gold ring rippling outward */
+.bank.pulse {
+  animation: bankbreathe 1.6s ease-in-out infinite;
+}
+.bank.pulse::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  pointer-events: none;
+  animation: bankripple 1.6s ease-out infinite;
+}
+@keyframes bankbreathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+@keyframes bankripple {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold) 75%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 12px color-mix(in srgb, var(--gold) 0%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bank.pulse {
+    animation: none;
+  }
+  .bank.pulse::after {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--gold);
+  }
+}
+.bank.beside {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 0;
+  width: 84px;
+}
+header .bank {
+  padding: 4px 4px 3px;
+  font-size: 0.66rem;
+}
+header .bank canvas {
+  width: 40px;
+  height: 40px;
+}
+.card .row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+}
+.win {
+  text-align: center;
+}
+.win h2 {
+  font-size: 2.1rem;
+  margin-bottom: 0.15em;
+}
+.win .big {
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0.1em 0 0.05em;
+  color: var(--ink);
+}
+.win .lbl {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0;
+}
+.win .total {
+  margin: 0.5em 0 1.1em;
+}
+.win .row {
+  grid-template-columns: 1fr 1.35fr;
+}
+.win .row button {
+  white-space: nowrap;
+}
+.win .endless {
+  background: var(--gold);
+  color: #3a2e22;
+}
+.win .card {
+  animation: winpop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+@keyframes winpop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+#confetti {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 50;
+}
+@media (prefers-reduced-motion: reduce) {
+  .win .card {
+    animation: none;
+  }
+}
+.card .secondary {
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--button);
+}
+.controls button.blend {
+  background: var(--gold);
+  color: #3a2e22;
+}
+#game {
+  transform-origin: 50% 50%;
+}
+.soundbtn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--frame);
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.soundbtn svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.soundbtn:hover {
+  background: var(--frame);
+  color: var(--page);
+}
+.soundbtn .off {
+  display: none;
+}
+.soundbtn[aria-pressed='true'] .on {
+  display: none;
+}
+.soundbtn[aria-pressed='true'] .off {
+  display: inline;
+}
+button {
+  font: inherit;
+  font-weight: 800;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.8em 1.5em;
+  background: var(--button);
+  color: var(--button-ink);
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+.controls button {
+  white-space: nowrap;
+}
+.controls button.secondary {
+  flex: 0 0 auto;
+  background: transparent;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 2px var(--button);
+  transition:
+    background 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
+}
+.controls button.secondary:hover {
+  background: var(--danger);
+  color: var(--page);
+  box-shadow: inset 0 0 0 2px var(--danger);
+}
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+}
+.toggle {
+  position: relative;
+  width: 58px;
+  height: 30px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--ocean);
+  box-shadow: inset 0 0 0 2px var(--frame);
+}
+.toggle .thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--button);
+  color: var(--button-ink);
+  display: grid;
+  place-items: center;
+  transform: translateX(28px);
+  transition: transform 0.25s ease;
+}
+.toggle svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.toggle .icon-cloud {
+  display: none;
+}
+:root[data-theme='dark'] .toggle .thumb {
+  transform: translateX(0);
+}
+:root[data-theme='dark'] .toggle .icon-sun {
+  display: none;
+}
+:root[data-theme='dark'] .toggle .icon-cloud {
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toggle .thumb {
+    transition: none;
+  }
+}
+.hint {
+  color: var(--muted);
+  font-size: 0.78rem;
+  flex: 1.4;
+  line-height: 1.3;
+}
+.toast {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(0.9rem, 3.6vw, 1.1rem);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--ink);
+  background: var(--page);
+  padding: 0.4em 0.9em;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.toast.show {
+  opacity: 0.95;
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 5;
+}
+@media (max-width: 520px) {
+  .overlay {
+    padding: 8px;
+  }
+  .card {
+    padding: 16px 16px 14px;
+  }
+  .card h2 {
+    font-size: 1.3rem;
+  }
+  .card ul {
+    font-size: 0.88rem;
+    line-height: 1.4;
+    margin-bottom: 0.9em;
+  }
+}
+.overlay[hidden] {
+  display: none;
+}
+.card {
+  background: var(--page);
+  border: 2px solid var(--frame);
+  border-radius: 18px;
+  padding: 22px 22px 20px;
+  max-width: 340px;
+  width: 100%;
+}
+.card h2 {
+  margin: 0 0 0.3em;
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.card p {
+  margin: 0.2em 0 0.8em;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.card ul {
+  margin: 0 0 1.1em;
+  padding-left: 1.1em;
+  line-height: 1.5;
+}
+.card button {
+  width: 100%;
+}
