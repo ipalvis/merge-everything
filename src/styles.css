@@ -369,11 +369,66 @@ h1 {
     box-shadow: 0 0 0 3px var(--gold);
   }
 }
+.bank-slot {
+  position: relative;
+  display: block;
+  line-height: 0;
+  border-radius: 8px;
+}
 .bank.beside {
   position: absolute;
   right: calc(100% + 14px);
   top: 0;
   width: 84px;
+}
+/* Beside the box (wide screens): no outer frame, just the slot that holds the banked piece and its label.
+   The slot carries the frame, the gold ring when full, and the pulse. */
+.bank.beside,
+.bank.beside.empty,
+.bank.beside.full {
+  padding: 0;
+  gap: 9px;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+.bank.beside .bank-slot {
+  border-radius: 12px;
+  box-shadow: 0 0 0 2px var(--frame);
+}
+.bank.beside canvas {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+}
+.bank.beside.full .bank-slot {
+  box-shadow: 0 0 0 3px var(--gold);
+}
+.bank.beside.pulse {
+  animation: none;
+}
+.bank.beside.pulse::after {
+  content: none;
+}
+.bank.beside.pulse .bank-slot {
+  animation: bankbreathe 1.6s ease-in-out infinite;
+}
+.bank.beside.pulse .bank-slot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  pointer-events: none;
+  animation: bankripple 1.6s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bank.beside.pulse .bank-slot {
+    animation: none;
+  }
+  .bank.beside.pulse .bank-slot::after {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--gold);
+  }
 }
 header .bank {
   padding: 4px 4px 3px;
@@ -671,4 +726,215 @@ button:focus-visible {
 }
 .card button {
   width: 100%;
+}
+
+/* Title card */
+.title-card {
+  text-align: center;
+  padding: 28px 24px 22px;
+}
+.card.title-card h2 {
+  font-size: 2.6rem;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  margin-bottom: 0.35em;
+}
+.title-card p {
+  margin: 0 auto 1.2em;
+  max-width: 24em;
+}
+.title-card .primary {
+  font-size: 1.2rem;
+  padding: 0.95em 1.5em;
+}
+.title-card .secondary {
+  width: auto;
+  min-width: 50%;
+  margin-top: 10px;
+  padding: 0.6em 1.4em;
+  font-size: 0.9rem;
+}
+.title-card {
+  animation: winpop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+@media (max-width: 520px) {
+  .card.title-card h2 {
+    font-size: 2.1rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-card {
+    animation: none;
+  }
+}
+
+/* Tutorial: a dim over the whole screen; .tut-lift raises whatever the current step is about above it */
+.tut-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgb(30 20 10 / 0.55);
+  animation: tutfade 0.3s ease-out;
+}
+:root[data-theme='dark'] .tut-dim {
+  background: rgb(0 0 0 / 0.62);
+}
+.tut-dim[hidden] {
+  display: none;
+}
+@keyframes tutfade {
+  from {
+    opacity: 0;
+  }
+}
+.tut-lift {
+  z-index: 21;
+}
+.tut-lift:not(.beside) {
+  position: relative;
+}
+.controls button.tut-lift {
+  animation: tutripple 1.6s ease-out infinite;
+}
+@keyframes tutripple {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--gold) 80%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--gold) 0%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .controls button.tut-lift {
+    animation: none;
+    box-shadow: 0 0 0 3px var(--gold);
+  }
+}
+.tutorial-on .toast {
+  z-index: 23;
+}
+.tutorial-on .overlay {
+  z-index: 24;
+}
+/* The instruction card sits over the box but lets taps through to it; only its buttons take taps */
+.tut-card {
+  position: absolute;
+  left: 50%;
+  top: 36%;
+  z-index: 22;
+  width: min(92%, 360px);
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: var(--page);
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  padding: 12px 16px 14px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.25);
+}
+.tut-card[hidden] {
+  display: none;
+}
+.tut-card[data-pos='top'] {
+  top: 3%;
+}
+.tut-card[data-pos='center'] {
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  padding: 22px 22px 20px;
+}
+.tut-card.pop {
+  animation: tutpop 0.3s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+@keyframes tutpop {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tut-card.pop {
+    animation: none;
+  }
+}
+.tut-card button {
+  pointer-events: auto;
+}
+.tut-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 1.2em;
+}
+.tut-head small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.tut-card h2 {
+  margin: 0.15em 0 0.2em;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.tut-card[data-pos='center'] h2 {
+  font-size: 1.9rem;
+}
+.tut-card p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+#tutNext {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+}
+#tutNext[hidden] {
+  display: none;
+}
+.tut-card[data-pos='center'] #tutNext {
+  font-size: 1.15rem;
+  padding: 0.9em 1.5em;
+  background: var(--gold);
+  color: #3a2e22;
+}
+.linkbtn {
+  margin-left: auto;
+  padding: 0.2em 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  border-radius: 4px;
+}
+.linkbtn:hover {
+  color: var(--ink);
+}
+.linkbtn[hidden] {
+  display: none;
+}
+@media (max-width: 520px) {
+  .tut-card {
+    top: 29%;
+    padding: 10px 13px 12px;
+  }
+  .tut-card h2 {
+    font-size: 1.12rem;
+  }
+  .tut-card p {
+    font-size: 0.86rem;
+  }
+  #tutNext {
+    margin-top: 9px;
+    padding: 0.65em 1.2em;
+  }
 }

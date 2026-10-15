@@ -1,15 +1,19 @@
 import Matter from 'matter-js';
-import { VH, VW } from '../config.js';
-import { clampAim, drop } from '../game/aim.js';
+import { CFG, VH, VW } from '../config.js';
+import { clampAim, drop, hoverY } from '../game/aim.js';
 import { askBank, closeBank, endBankPick } from '../game/bank.js';
 import { blendIt } from '../game/blend.js';
 import { shake } from '../game/shake.js';
-import { G } from '../state.js';
+import { G, tutBlocks } from '../state.js';
 import { canvas } from '../ui/canvas.js';
 
 function toLogicalXY(e) {
   const r = canvas.getBoundingClientRect();
   return { x: ((e.clientX - r.left) * VW) / r.width, y: ((e.clientY - r.top) * VH) / r.height };
+}
+function onWaiting(p) {
+  const pc = G.current;
+  return pc && Math.hypot(p.x - G.aimX, p.y - hoverY(pc)) <= pc.R + CFG.ringGap;
 }
 function pieceAt(p) {
   for (const g of G.groups)
@@ -23,17 +27,18 @@ canvas.addEventListener('pointerdown', e => {
     canvas.setPointerCapture(e.pointerId);
   } catch (_) {}
   if (G.state === 'bankpick') {
-    const g = pieceAt(p);
+    const g = onWaiting(p) ? G.current : pieceAt(p);
     if (g) askBank(g);
     else endBankPick();
     return;
   }
-  if (G.state !== 'playing') return;
+  if (G.state !== 'playing' || tutBlocks('drop')) return;
   G.aimX = p.x;
   clampAim();
   G.press = { t0: performance.now() }; // holding anywhere spins the waiting piece; letting go drops it
 });
 canvas.addEventListener('pointermove', e => {
+  if (G.state !== 'playing') return; // e.g. while picking a piece to bank, the waiting piece stays put
   const p = toLogicalXY(e);
   G.aimX = p.x;
   clampAim();
@@ -60,6 +65,8 @@ addEventListener('keydown', e => {
     return;
   }
   if (G.state !== 'playing') return;
+  const k = e.key.toLowerCase();
+  if (tutBlocks(k === 's' ? 'shake' : k === 'b' ? 'blend' : 'drop')) return;
   if (e.key === 'ArrowLeft') {
     G.aimX -= 14;
     clampAim();

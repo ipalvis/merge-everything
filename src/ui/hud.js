@@ -21,7 +21,7 @@ export function updateHUD() {
   $('biggest').textContent = `${big}/${GOAL_IDS.length}`;
   $('bar').style.width = (big / GOAL_IDS.length) * 100 + '%';
   const nxt = G.deck[G.deck.length - 1];
-  $('nextName').textContent = nxt ? nxt.name : G.current ? 'Last one' : 'Deck empty';
+  $('nextName').textContent = G.tut ? '—' : nxt ? nxt.name : G.current ? 'Last one' : 'Deck empty';
   $('shakeBtn').disabled = G.state !== 'playing' || performance.now() - G.lastShake < CFG.shakeCooldown;
   $('blendBtn').disabled = G.state !== 'playing' || G.blendsLeft <= 0;
   $('blendBtn').textContent = G.blendsLeft > 0 ? `Blend It! (${G.blendsLeft})` : 'Blended (0)';
@@ -51,7 +51,7 @@ export function updateHUD() {
       ? `Drop ${G.bank.name} next`
       : G.bankPhase === 'spent'
         ? 'Bank already used this round'
-        : 'Tap, then tap a piece in the box to bank it (once per round)';
+        : 'Tap, then tap a piece in the box or the one waiting to drop to bank it (once per round)';
   drawThumb($('bankCanvas'), G.bank);
 }
 function drawThumb(c, st) {

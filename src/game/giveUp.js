@@ -5,7 +5,7 @@ import { $ } from '../ui/dom.js';
 
 let giveUpArmed = -Infinity;
 export function giveUp() {
-  if (!['playing', 'blending', 'clearing'].includes(G.state)) return;
+  if (G.tut || !['playing', 'blending', 'clearing'].includes(G.state)) return;
   const btn = $('giveUpBtn'),
     now = performance.now();
   if (now - giveUpArmed > 3000) {

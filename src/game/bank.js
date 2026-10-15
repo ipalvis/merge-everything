@@ -3,12 +3,14 @@ import { Sound } from '../audio/sound.js';
 import { clampAim } from './aim.js';
 import { STATES, makePiece } from '../map/geometry.js';
 import { ownerOf, removeGroup } from '../physics/world.js';
-import { G } from '../state.js';
+import { G, tutBlocks } from '../state.js';
 import { $ } from '../ui/dom.js';
 import { toast, updateHUD } from '../ui/hud.js';
 
 const { Sleeping } = Matter;
 
+/* g is a piece in the box (a group, with .ids) or the piece waiting to drop (G.current, with .states) */
+const idsOf = g => (g === G.current ? g.states : [...g.ids]);
 export function askBank(g) {
   if (G.state !== 'playing' && G.state !== 'bankpick') return;
   if (G.bankPhase !== 'ready') {
@@ -17,11 +19,14 @@ export function askBank(g) {
   }
   G.bankTarget = g;
   G.state = 'banking';
-  const ids = [...g.ids];
+  const ids = idsOf(g),
+    waiting = g === G.current;
   $('bankText').textContent =
     ids.length === 1
-      ? `${STATES[ids[0]].name} moves to the bank. Tap the bank whenever you want to drop it back in.`
-      : `These ${ids.length} connected states move to the bank together. Tap the bank whenever you want to drop them back in.`;
+      ? `${STATES[ids[0]].name} moves to the bank${waiting ? ' instead of dropping' : ''}. Tap the bank whenever you want to drop it back in.`
+      : waiting
+        ? `${g.name} move to the bank instead of dropping. Tap the bank whenever you want to drop them back in.`
+        : `These ${ids.length} connected states move to the bank together. Tap the bank whenever you want to drop them back in.`;
   $('bankOverlay').hidden = false;
   $('bankYes').focus();
   updateHUD();
@@ -33,7 +38,17 @@ export function closeBank(yes) {
   G.bankTarget = null;
   G.state = 'playing';
   G.last = performance.now();
-  if (yes && g && G.groups.includes(g)) {
+  if (yes && g && g === G.current) {
+    // the waiting piece goes straight to the bank; the next one in the deck takes its place
+    G.bank = g;
+    G.current = G.deck.pop() || null;
+    G.aimAngle = 0;
+    clampAim();
+    G.bankPhase = 'holding';
+    Sound.fx.bank();
+    if (!G.tut) toast(`${g.name} banked`);
+    G.tut?.banked?.();
+  } else if (yes && g && G.groups.includes(g)) {
     removeGroup(g);
     for (const id of g.ids) delete ownerOf[id];
     for (const o of G.groups) if (o.isSleeping) Sleeping.set(o, false); // anything resting on it should fall
@@ -41,7 +56,8 @@ export function closeBank(yes) {
     G.bank = makePiece(ids, ids.length === 1 ? STATES[ids[0]].name : `${ids.length} connected states`);
     G.bankPhase = 'holding';
     Sound.fx.bank();
-    toast(ids.length === 1 ? `${G.bank.name} banked` : `${ids.length} states banked`);
+    if (!G.tut) toast(ids.length === 1 ? `${G.bank.name} banked` : `${ids.length} states banked`);
+    G.tut?.banked?.();
   }
   updateHUD();
 }
@@ -60,6 +76,7 @@ $('bankYes').addEventListener('click', () => closeBank(true));
 $('bankNo').addEventListener('click', () => closeBank(false));
 /* Tapping the bank: drop a held piece, or start picking a piece to bank (the game pauses while you pick) */
 function onBankClick() {
+  if (tutBlocks('bank')) return;
   if (G.state === 'bankpick') {
     endBankPick();
     return;
@@ -69,8 +86,8 @@ function onBankClick() {
     return;
   }
   if (G.bankPhase === 'ready' && G.state === 'playing') {
-    if (!G.groups.length) {
-      toast('Drop a piece first');
+    if (!G.groups.length && !G.current) {
+      toast('Nothing to bank yet');
       return;
     }
     G.state = 'bankpick';

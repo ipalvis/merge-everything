@@ -53,7 +53,8 @@ export function drop() {
   G.current = G.deck.pop() || null;
   G.aimAngle = 0;
   if (G.current) clampAim();
-  else
+  if (G.tut) G.tut.dropped?.(g);
+  else if (!G.current)
     toast(
       G.bankPhase === 'holding' ? 'Drop your banked piece to finish' : 'Every piece is in. Shake to connect the rest',
     );

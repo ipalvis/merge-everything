@@ -46,9 +46,9 @@
           id="bankBtn"
           class="bank empty"
           disabled
-          title="Tap, then tap a piece in the box to bank it (once per round)"
+          title="Tap, then tap a piece in the box or the one waiting to drop to bank it (once per round)"
         >
-          <canvas id="bankCanvas" width="112" height="112" aria-hidden="true"></canvas>
+          <span class="bank-slot"><canvas id="bankCanvas" width="144" height="144" aria-hidden="true"></canvas></span>
           <span id="bankLabel">Bank</span>
         </button>
         <div class="next" aria-live="polite">
@@ -69,18 +69,20 @@
         </div>
         <div class="toast" id="toast" role="status" aria-live="polite"></div>
         <div class="overlay" id="startOverlay">
-          <div class="card">
-            <h2>Connect the Lower 48 in the box!</h2>
-            <ul>
-              <li>States that border each other on the map stick together.</li>
-              <li>Shake the box to jostle pieces into place.</li>
-              <li>If the pile stays above the red line, it's over.</li>
-              <li>Connect all 48 states to win, then keep going in Endless mode.</li>
-              <li>Press and hold anywhere to rotate the waiting piece. Let go to drop.</li>
-              <li>Tap the Bank, then a piece in the box, to set it aside for later. Once per round.</li>
-            </ul>
-            <button id="startBtn">Start</button>
+          <div class="card title-card" role="dialog" aria-labelledby="titleHeading">
+            <h2 id="titleHeading">Merge<br />Everything!</h2>
+            <p id="titleTagline">Drop U.S. states into the box. Neighbors stick together. Build the Lower 48.</p>
+            <button id="titlePrimary" class="primary">Start Tutorial</button>
+            <button id="titleSecondary" class="secondary">Skip</button>
           </div>
+        </div>
+        <div class="tut-card" id="tutCard" role="dialog" aria-live="polite" aria-labelledby="tutTitle" hidden>
+          <div class="tut-head">
+            <small id="tutStep"></small><button id="tutSkip" class="linkbtn">Skip tutorial</button>
+          </div>
+          <h2 id="tutTitle"></h2>
+          <p id="tutText"></p>
+          <button id="tutNext" hidden>Next</button>
         </div>
         <div class="overlay" id="bankOverlay" hidden>
           <div class="card" role="dialog" aria-labelledby="bankTitle">
@@ -121,6 +123,7 @@
         </button>
       </div>
     </main>
+    <div class="tut-dim" id="tutDim" hidden></div>
     <canvas id="confetti" aria-hidden="true"></canvas>
     <script type="module" src="/src/main.js"></script>
   </body>

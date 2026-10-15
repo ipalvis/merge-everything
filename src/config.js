@@ -9,6 +9,7 @@ export const TEST_IDS = FORCE_TEST || new URLSearchParams(location.search).has('
 export const STORAGE_KEYS = {
   best: TEST_IDS ? 'merge-everything-test-best' : 'merge-everything-best',
   muted: 'merge-everything-muted',
+  tutorialDone: 'merge-everything-tutorial-done',
 };
 try {
   for (const [from, to] of [

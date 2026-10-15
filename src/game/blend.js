@@ -1,7 +1,7 @@
 import Matter from 'matter-js';
 import { Sound } from '../audio/sound.js';
 import { CFG, VW } from '../config.js';
-import { G } from '../state.js';
+import { G, tutBlocks } from '../state.js';
 import { canvas } from '../ui/canvas.js';
 import { updateHUD } from '../ui/hud.js';
 
@@ -10,7 +10,7 @@ const { Bodies, Composite, Sleeping } = Matter;
 /* The box gets a lid and spins. Physically the walls stay put and gravity rotates the opposite way,
    which is the same thing from inside the box and avoids pieces tunneling through moving walls. */
 export function blendIt() {
-  if (G.state !== 'playing' || G.blendsLeft <= 0) return;
+  if (G.state !== 'playing' || G.blendsLeft <= 0 || tutBlocks('blend')) return;
   G.blendsLeft--;
   G.state = 'blending';
   Sound.fx.blend(CFG.blendDuration);
@@ -21,6 +21,7 @@ export function blendIt() {
   G.engine.enableSleeping = false; // sleeping pieces would ignore the turning gravity
   for (const g of G.groups) Sleeping.set(g, false);
   G.blend = { t0: performance.now(), lid };
+  G.tut?.blendStart?.();
   updateHUD();
 }
 export function updateBlend(now) {
@@ -36,6 +37,7 @@ export function updateBlend(now) {
     G.state = 'playing';
     G.dangerSince = null;
     for (const g of G.groups) g.born = now; // fresh grace period before the red line counts
+    G.tut?.blendDone?.();
     updateHUD();
   }
 }

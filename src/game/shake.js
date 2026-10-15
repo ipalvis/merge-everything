@@ -1,7 +1,7 @@
 import Matter from 'matter-js';
 import { Sound } from '../audio/sound.js';
 import { CFG } from '../config.js';
-import { G } from '../state.js';
+import { G, tutBlocks } from '../state.js';
 import { $ } from '../ui/dom.js';
 
 const { Body, Sleeping } = Matter;
@@ -19,7 +19,7 @@ function jolt(strength, side) {
 }
 export function shake() {
   const now = performance.now();
-  if (G.state !== 'playing' || now - G.lastShake < CFG.shakeCooldown) return;
+  if (G.state !== 'playing' || now - G.lastShake < CFG.shakeCooldown || tutBlocks('shake')) return;
   G.lastShake = now;
   Sound.fx.shake(CFG.shakeDuration);
   // A big toss, then two smaller sways that follow the box's side-to-side motion
@@ -41,4 +41,5 @@ export function shake() {
   setTimeout(() => {
     $('shakeBtn').disabled = G.state !== 'playing';
   }, CFG.shakeCooldown);
+  G.tut?.shaken?.();
 }

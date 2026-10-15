@@ -5,11 +5,13 @@ import { updateBlend } from './blend.js';
 import { dangerY, gameOver } from './game.js';
 import { processMerges } from '../physics/world.js';
 import { render } from '../render/render.js';
+import { Sound } from '../audio/sound.js';
 import { G } from '../state.js';
 
 const { Body, Engine, Sleeping } = Matter;
 
-let acc = 0;
+let acc = 0,
+  chimedFor = null; // the danger episode (its start time) that already got its warning chime
 const STEP = 1000 / 60;
 function checkOverflow(now) {
   const dy = dangerY();
@@ -19,7 +21,12 @@ function checkOverflow(now) {
     return;
   }
   if (G.dangerSince === null) G.dangerSince = now;
-  if (now - G.dangerSince > CFG.overflowLimit) gameOver();
+  const left = CFG.overflowLimit - (now - G.dangerSince);
+  if (left < 1000 && chimedFor !== G.dangerSince) {
+    chimedFor = G.dangerSince;
+    Sound.fx.warn(); // one second to go
+  }
+  if (left < 0) gameOver();
 }
 function settle(now) {
   for (const g of G.groups) {
@@ -55,9 +62,10 @@ export function frame(now) {
       }
       acc -= STEP;
     }
-    if (G.state === 'playing') checkOverflow(now);
+    if (G.state === 'playing' && !G.tut) checkOverflow(now);
     if (G.state !== 'blending') settle(now);
   }
+  G.tut?.tick?.(now);
   G.last = now;
   render(now);
   requestAnimationFrame(frame);

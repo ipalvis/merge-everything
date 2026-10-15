@@ -64,6 +64,13 @@ function addScore(n) {
   }
 }
 export function onMerged(g) {
+  if (G.tut) {
+    // tutorial: no scoring, region toasts or round wins; it reacts to the merge itself
+    if (!G.tut.building) Sound.fx.merge(g.ids.size);
+    G.tut.merged?.(g);
+    updateHUD();
+    return;
+  }
   Sound.fx.merge(g.ids.size);
   addScore(CFG.pts.mergePerState * g.ids.size * G.round);
   for (const [name, ids] of Object.entries(DIVISIONS))

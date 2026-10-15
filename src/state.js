@@ -7,7 +7,7 @@
 import { CFG, VW } from './config.js';
 
 export const G = {
-  // flow: 'title' | 'playing' | 'blending' | 'bankpick' | 'banking' | 'clearing' | 'won' | 'over'
+  // flow: 'title' | 'playing' | 'blending' | 'bankpick' | 'banking' | 'clearing' | 'won' | 'over' | 'tutorial' (paused on a tutorial card)
   state: 'title',
 
   // physics world (rebuilt every round by setupWorld)
@@ -44,4 +44,11 @@ export const G = {
   dangerSince: null, // when the pile first sat above the red line, or null
   flashes: [], // recent merges to glow
   last: performance.now(), // time of the previous frame
+
+  // tutorial: hooks and allowed actions while it runs (see game/tutorial.js), else null; tutGlow = piece it points at
+  tut: null,
+  tutGlow: null,
 };
+
+/* While the tutorial runs, only the action its current step teaches is allowed ('drop', 'shake', 'bank', 'blend') */
+export const tutBlocks = action => !!G.tut && !G.tut.allow.has(action);

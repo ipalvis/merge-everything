@@ -250,6 +250,15 @@ export const Sound = (() => {
       [60, 64, 67, 72].forEach(m => tone(sfxBus, 'triangle', mtof(m), t + 0.63, 0.02, 0.18, 1.4));
       noise(sfxBus, t + 0.6, 0.5, 0.15, 'highpass', 5000);
     },
+    // overflow is one second away: a quick high-low-high-low chime
+    warn() {
+      if (!ensure()) return;
+      const t = now();
+      [88, 83, 88, 83].forEach((m, i) => {
+        mallet(sfxBus, m, t + i * 0.11, 0.4, 0.2);
+        tone(sfxBus, 'square', mtof(m), t + i * 0.11, 0.003, 0.05, 0.08);
+      });
+    },
     lose() {
       if (!ensure()) return;
       const t = now();

@@ -5,6 +5,8 @@ import { CFG, TEST_IDS } from '../config.js';
 const { Vertices } = Matter;
 
 const S = (CFG.mapFill * CFG.boxW) / DATA.w;
+/* Hand-tuned label shifts (map px) for states whose centre falls near an edge */
+const LABEL_NUDGE = { FL: { x: 8, y: 0 } };
 export const STATES = {};
 for (const s of DATA.states) {
   const parts = s.parts.map(p => ({
@@ -21,12 +23,14 @@ for (const s of DATA.states) {
   const main = parts.reduce((a, b) =>
     Math.abs(Vertices.area(b.outline)) > Math.abs(Vertices.area(a.outline)) ? b : a,
   );
+  const mid = Vertices.centre(main.outline),
+    nudge = LABEL_NUDGE[s.id] || { x: 0, y: 0 };
   STATES[s.id] = {
     id: s.id,
     name: s.name,
     parts,
     bb,
-    labelAt: Vertices.centre(main.outline),
+    labelAt: { x: mid.x + nudge.x, y: mid.y + nudge.y },
     area: parts.reduce((t, p) => t + Math.abs(Vertices.area(p.outline)), 0),
     neighbors: new Set(s.neighbors),
   };

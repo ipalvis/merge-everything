@@ -37,7 +37,7 @@ function drawGroup(g, now) {
   ctx.translate(-g.m0.x, -g.m0.y);
   const f = G.flashes.find(f => f.g === g);
   const glow = f ? Math.max(0, 1 - (now - f.t) / 450) : 0;
-  const pick = g === G.bankTarget;
+  const pick = g === G.bankTarget || g === G.tutGlow;
   if (g.golden || glow || pick) {
     ctx.shadowColor = theme.gold;
     ctx.shadowBlur = g.golden || pick ? 22 : 18 * glow;
@@ -74,43 +74,42 @@ export function render(now) {
     ctx.lineTo(BOX.r, y);
     ctx.stroke();
   }
-  // danger line
-  const dy = dangerY(),
-    warn = G.dangerSince !== null;
-  ctx.setLineDash([10, 8]);
-  ctx.lineWidth = warn ? 3 : 2;
-  ctx.strokeStyle = theme['box-danger'];
-  ctx.globalAlpha = warn ? 0.6 + 0.4 * Math.sin(now / 90) : 0.7;
-  ctx.beginPath();
-  ctx.moveTo(BOX.l, dy);
-  ctx.lineTo(BOX.r, dy);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.globalAlpha = 1;
+  drawDangerLine(now);
   // pieces
   for (const g of G.groups) drawGroup(g, now);
-  // aiming preview, circled by rotation arrows that turn with it
-  if (G.state === 'playing' && G.current) {
+  // aiming preview, circled by rotation arrows that turn with it.
+  // While picking a piece to bank, the waiting piece stays on show (glowing: it can be banked too).
+  const picking = G.state === 'bankpick' || G.state === 'banking';
+  if (G.current && (G.state === 'playing' || picking)) {
     const pc = G.current,
       cy = hoverY(pc),
       ready = canDrop();
-    const spinning = G.press && performance.now() - G.press.t0 > CFG.rotateDelay;
-    ctx.setLineDash([4, 6]);
-    ctx.strokeStyle = theme['box-guide'];
-    ctx.globalAlpha = 0.35;
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(G.aimX, cy + pc.R + CFG.ringGap);
-    ctx.lineTo(G.aimX, BOX.b);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    drawSpinRing(G.aimX, cy, pc.R + CFG.ringGap, G.aimAngle, spinning);
-    ctx.globalAlpha = ready ? 0.95 : 0.35;
+    if (!picking) {
+      const spinning = G.press && performance.now() - G.press.t0 > CFG.rotateDelay;
+      ctx.setLineDash([4, 6]);
+      ctx.strokeStyle = theme['box-guide'];
+      ctx.globalAlpha = 0.35;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(G.aimX, cy + pc.R + CFG.ringGap);
+      ctx.lineTo(G.aimX, BOX.b);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      drawSpinRing(G.aimX, cy, pc.R + CFG.ringGap, G.aimAngle, spinning);
+    }
+    ctx.globalAlpha = picking || ready ? 0.95 : 0.35;
     ctx.save();
     ctx.translate(G.aimX, cy);
     ctx.rotate(G.aimAngle);
     ctx.translate(-pc.c.x, -pc.c.y);
-    for (const sid of pc.states) drawState(ctx, STATES[sid], theme['c' + STATES[sid].color], 1.1, true);
+    const glow = G.state === 'bankpick' ? 12 + 8 * Math.sin(now / 160) : G.bankTarget === pc ? 22 : 0;
+    if (glow) {
+      ctx.shadowColor = theme.gold;
+      ctx.shadowBlur = glow;
+    }
+    for (const sid of pc.states) drawState(ctx, STATES[sid], theme['c' + STATES[sid].color], 1.1, false);
+    ctx.shadowBlur = 0;
+    for (const sid of pc.states) drawState(ctx, STATES[sid], 'transparent', 0, true);
     ctx.restore();
     ctx.globalAlpha = 1;
   }
@@ -134,7 +133,8 @@ export function render(now) {
   if (G.state === 'bankpick') {
     // picking a piece to bank: the game is paused
     const fs = Math.max(15, 13 / (canvas.__css || 1)),
-      msg = 'Tap a piece to bank it';
+      msg = 'Tap any piece to bank it',
+      top = G.current ? hoverY(G.current) + G.current.R + CFG.ringGap + 10 : 30; // below the waiting piece
     ctx.save();
     ctx.font = `800 ${fs}px "Public Sans", system-ui, sans-serif`;
     ctx.textAlign = 'center';
@@ -144,17 +144,46 @@ export function render(now) {
     ctx.fillStyle = theme.page;
     ctx.globalAlpha = 0.94;
     ctx.beginPath();
-    ctx.roundRect(VW / 2 - w / 2, 30, w, h, h / 2);
+    ctx.roundRect(VW / 2 - w / 2, top, w, h, h / 2);
     ctx.fill();
     ctx.globalAlpha = 1;
     ctx.strokeStyle = theme.gold;
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.fillStyle = theme.ink;
-    ctx.fillText(msg, VW / 2, 30 + h / 2);
+    ctx.fillText(msg, VW / 2, top + h / 2);
     ctx.restore();
   }
   G.flashes = G.flashes.filter(f => now - f.t < 450);
+}
+/* The red line. Calm normally; once the pile has sat above it, it blinks hard, faster and faster
+   (about 3 to 10 blinks a second) until the box overflows. */
+function drawDangerLine(now) {
+  const dy = dangerY(),
+    since = G.dangerSince;
+  ctx.save();
+  ctx.setLineDash([10, 8]);
+  ctx.strokeStyle = theme['box-danger'];
+  if (since === null) {
+    ctx.lineWidth = 2;
+    ctx.globalAlpha = 0.7;
+  } else {
+    const t = Math.max(0, now - since) / 1000,
+      L = CFG.overflowLimit / 1000,
+      phase = 3 * t + (3.5 * t * t) / L, // integral of a blink rate rising from 3/s to 10/s
+      on = phase % 1 < 0.55;
+    ctx.lineWidth = on ? 5 : 2;
+    ctx.globalAlpha = on ? 1 : 0.2;
+    if (on) {
+      ctx.shadowColor = theme['box-danger'];
+      ctx.shadowBlur = 14;
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(BOX.l, dy);
+  ctx.lineTo(BOX.r, dy);
+  ctx.stroke();
+  ctx.restore();
 }
 /* Two large clockwise arrows on a circle around the waiting piece; they turn with it. */
 function drawSpinRing(x, y, R, ang, active) {
