@@ -59,45 +59,6 @@ scripts/
 
 **Tuning gameplay:** almost everything is in `CFG` in `src/config.js`: gravity, danger line, cooldowns, Blend It! uses, scoring. Audio levels and tempo are at the top of `src/audio/sound.js`.
 
-## Deploying to Cloudflare Pages
-
-The repo deploys automatically: every push to `main` goes live, and every other branch gets its own preview URL.
-
-### One-time setup
-
-1. Push this repo to GitHub.
-2. In the Cloudflare dashboard, go to **Workers & Pages**, create a new **Pages** application, and choose to connect a Git repository. Pick this repo.
-3. Use these build settings:
-   - Framework preset: **Vite** (or None)
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-   - Node version comes from `.nvmrc`; no environment variables are needed.
-4. Save and deploy.
-
-> **Moving from the old drag-and-drop project:** Cloudflare can't switch an existing direct-upload Pages project to Git. Create a new project as above. If you want to keep the same `*.pages.dev` name, delete the old project first. A custom domain can be moved from the old project to the new one.
-
-### Day-to-day
-
-```bash
-git checkout -b my-change     # work on a branch
-npm run dev                   # try it locally
-git push -u origin my-change  # Cloudflare builds a preview URL for the branch
-# merge to main when happy -> production deploys automatically
-```
-
-Rolling back is one click: in the Pages project, open **Deployments** and roll back to any earlier build.
-
-### Updating the claude.ai artifact
-
-```bash
-npm run build:single
-```
-
-Then publish `dist-single/index.html` as the game artifact. For the test artifact, run `npm run build:single-test` and publish `dist-single-test/index.html` (it's fully self-contained, about 350 kB).
-
-## Map data
-
-`src/data/states.json` is generated and committed, so normal builds don't need the map tools. Run `npm run build:map` only to change how the map is processed. The script reads U.S. Census Bureau state boundaries from the `us-atlas` package (Albers projection), finds shared borders with `topojson-client`, simplifies outlines with `simplify-js`, and splits each shape into convex pieces with `poly-decomp`. With the pinned versions it reproduces the committed file exactly.
 
 ## Notes
 
